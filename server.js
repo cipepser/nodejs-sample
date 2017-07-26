@@ -1,4 +1,5 @@
 var http = require('http');
+var settings = require('./settings')
 var server = http.createServer();
 server.on('request', function(req, res) {
   res.writeHead(200, {'Content-Tyep': 'text/plain'});
@@ -6,5 +7,5 @@ server.on('request', function(req, res) {
   res.end();
 });
 
-server.listen(1337, '127.0.0.1');
+server.listen(settings.port, settings.host);
 console.log("server listening ...");
