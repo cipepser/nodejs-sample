@@ -1,36 +1,36 @@
 var http = require('http'),
     fs = require('fs'),
-    ejs = require('ejs');
+    ejs = require('ejs'),
+    qs = require('querystring');
 var settings = require('./settings')
 var server = http.createServer();
-var template = fs.readFileSync(__dirname + '/public_html/hello.ejs', 'utf-8');
+var template = fs.readFileSync(__dirname + '/public_html/bbs.ejs', 'utf-8');
+var posts = [];
 
-var n = 0;
-server.on('request', function(req, res) {
-  n++;
+function renderForm(posts, res) {
   var data = ejs.render(template, {
-    title: "hello",
-    content: "<strong>World</strong>",
-    n: n
+    posts: posts
   });
-
   res.writeHead(200, {'Content-Tyep': 'text/html'});
   res.write(data);
   res.end();
-// });
-  
-  // switch (req.url) {
-  //   case '/about':
-  //     msg = "about this page";
-  //     break;
-  //   case '/profile':
-  //     msg = "about me";
-  //     break;
-  //   default:
-  //     msg = "wrong page";
-  //     break;
-  // }
-  
+}
+
+server.on('request', function(req, res) {
+  if (req.method === 'POST') {
+    req.data = "";
+    var cnt = 0;
+    req.on("readable", function() {
+      req.data += req.read() || "";
+    });
+    req.on("end", function() {
+      var query = qs.parse(req.data);
+      posts.push(query.name);
+      renderForm(posts, res);
+    });
+  } else {
+    renderForm(posts, res)
+  }
 });
 
 server.listen(settings.port, settings.host);
